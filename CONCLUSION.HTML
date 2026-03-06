@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cierre — Tríada Ecológica</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --azul:      #1c4f6e;
+  --azul-med:  #2a7a9b;
+  --teal:      #0d8a7a;
+  --cian:      #48cae4;
+  --blanco:    #ffffff;
+  --gris:      #f2f6f8;
+  --texto:     #1a2e3b;
+  --error:     #b83232;
+}
+
+html {
+  height: -webkit-fill-available; /* iOS Safari altura real */
+}
+body {
+  width: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--azul);
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  /* iOS: evitar zoom en doble tap */
+  -ms-touch-action: manipulation;
+}
+
+.page {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px;
+  /* iOS safe area */
+  padding-top: max(32px, env(safe-area-inset-top));
+  padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 60px));
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.7s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.page.active { opacity: 1; pointer-events: all; }
+
+/* ── PÁGINA 1 ── */
+#p1 { background: linear-gradient(145deg, #1c4f6e 0%, #0d3349 55%, #061f30 100%); }
+
+.p1-inner {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  gap: 22px; max-width: 460px;
+}
+.p1-badge {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px; padding: 6px 18px;
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: #8ecae6; font-weight: 500;
+  opacity: 0; animation: subir 0.7s ease forwards 0.4s;
+}
+.p1-titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(30px, 8vw, 50px);
+  line-height: 1.15; color: #fff;
+  opacity: 0; animation: subir 0.7s ease forwards 0.8s;
+}
+.p1-titulo em { font-style: italic; color: var(--cian); }
+.p1-sub {
+  font-size: 15px; color: #7fb3c8; font-weight: 300;
+  line-height: 1.65; max-width: 320px;
+  opacity: 0; animation: subir 0.7s ease forwards 1.2s;
+}
+.p1-linea {
+  width: 48px; height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--azul-med));
+  border-radius: 2px;
+  opacity: 0; animation: subir 0.7s ease forwards 1.5s;
+}
+@keyframes subir {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── FLECHA ── */
+.flecha-btn {
+  position: fixed;
+  bottom: max(32px, calc(env(safe-area-inset-bottom) + 20px));
+  left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease;
+  background: none; border: none;
+  padding: 14px 28px;
+  min-width: 90px; min-height: 64px;
+  /* iOS: cursor pointer no es necesario pero cursor:pointer sí */
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* iOS: sin outline feo */
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.flecha-btn.visible { opacity: 1; pointer-events: all; }
+.fb-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #8ecae6; font-weight: 500; pointer-events: none; }
+.fb-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid rgba(142,202,230,0.5);
+  display: flex; align-items: center; justify-content: center;
+  color: #8ecae6; font-size: 17px;
+  animation: rebote 2s ease infinite;
+  pointer-events: none;
+}
+@keyframes rebote { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+
+/* ── DOTS ── */
+.progress-dots {
+  position: fixed;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%);
+  display: flex; gap: 7px; z-index: 200;
+  pointer-events: none;
+}
+.pdot { width: 6px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.2); transition: all 0.35s ease; }
+.pdot.on { background: var(--cian); width: 22px; }
+
+/* ── PÁGINA 2 ── */
+#p2 {
+  background: var(--gris);
+  padding: 0;
+  justify-content: flex-start;
+  padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 80px));
+}
+
+.juego-header {
+  width: 100%; padding: 18px 20px 14px;
+  padding-top: max(18px, calc(env(safe-area-inset-top) + 12px));
+  background: var(--azul); text-align: center; flex-shrink: 0;
+}
+.juego-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(17px, 4.5vw, 24px);
+  color: #fff; font-weight: 400;
+}
+.juego-header p { font-size: 12px; color: #7fb3c8; margin-top: 3px; }
+.juego-timer { font-size: 14px; letter-spacing: 2px; color: var(--cian); margin-top: 6px; font-weight: 500; }
+
+.reglas {
+  width: calc(100% - 32px); max-width: 480px;
+  margin: 12px auto 0;
+  background: white; border-left: 3px solid var(--teal);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 12px; color: #2a4a3a; line-height: 1.7; flex-shrink: 0;
+}
+.reglas strong { color: var(--teal); }
+
+.juego-escena {
+  flex: 1; width: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 10px 16px; gap: 6px; min-height: 0;
+}
+
+.orilla {
+  width: 100%; max-width: 480px; min-height: 88px;
+  background: #d8eee8; border-radius: 10px;
+  position: relative; display: flex; align-items: center;
+  padding: 24px 14px 8px; gap: 10px;
+  flex-shrink: 0; flex-wrap: wrap;
+}
+.orilla-label {
+  position: absolute; top: 7px; left: 12px;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--teal); font-weight: 600; opacity: 0.8;
+}
+
+.rio {
+  width: 100%; max-width: 480px; height: 58px;
+  background: linear-gradient(90deg, #48cae4 0%, #0096c7 50%, #48cae4 100%);
+  border-radius: 4px; position: relative; overflow: hidden; flex-shrink: 0;
+}
+.rio::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0px, transparent 28px, rgba(255,255,255,0.12) 28px, rgba(255,255,255,0.12) 56px);
+  animation: olas 2.5s linear infinite;
+}
+@keyframes olas { from{transform:translateX(0)} to{transform:translateX(56px)} }
+
+.barco {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 30px; z-index: 10;
+  transition: left 0.65s cubic-bezier(0.4,0,0.2,1);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  /* iOS: sin selección de texto en emoji */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* iOS: los elementos con cursor:pointer necesitan esto para activar :active */
+.personaje-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  cursor: pointer;
+  padding: 8px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  /* CRÍTICO en iOS Safari: sin esto los divs no reciben tap */
+  cursor: pointer;
+}
+.personaje {
+  font-size: clamp(26px, 7vw, 36px);
+  user-select: none;
+  -webkit-user-select: none;
+  display: block;
+  transition: transform 0.15s ease, opacity 0.3s ease;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+  pointer-events: none;
+}
+.personaje-wrap:active .personaje { transform: scale(1.25); }
+.personaje-wrap.seleccionado .personaje { filter: drop-shadow(0 0 7px #0096c7); }
+.personaje-wrap.en-barco .personaje { opacity: 0.35; }
+.personaje-nombre {
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  color: #2a5a4a; font-weight: 500; pointer-events: none;
+  user-select: none; -webkit-user-select: none;
+}
+
+.instruccion {
+  width: 100%; max-width: 480px;
+  font-size: 14px; color: var(--azul); text-align: center;
+  padding: 6px 16px; font-weight: 500; min-height: 40px;
+  flex-shrink: 0; line-height: 1.4; transition: color 0.2s ease;
+}
+.instruccion.error {
+  color: var(--error); font-size: 16px; font-weight: 700;
+  animation: pulso 0.35s ease;
+}
+@keyframes pulso { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+
+.barco-acciones {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; padding: 4px 16px; flex-shrink: 0;
+}
+.btn-j {
+  background: var(--azul); color: white;
+  border: none; border-radius: 18px;
+  padding: 10px 16px; font-size: 13px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s, opacity 0.2s;
+  min-height: 44px; /* mínimo Apple HIG */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  /* iOS: sin efecto gris en tap */
+  -webkit-touch-callout: none;
+}
+.btn-j:active { opacity: 0.75; }
+.btn-j:disabled { opacity: 0.35; cursor: default; }
+.btn-j.primario { background: var(--teal); font-weight: 500; }
+.btn-j.solo     { background: #5a7d8e; }
+
+.victoria {
+  display: none; flex-direction: column; align-items: center;
+  gap: 10px; text-align: center; padding: 20px;
+}
+.victoria.show { display: flex; }
+.victoria h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--teal); }
+.victoria p { font-size: 14px; color: #555; max-width: 280px; line-height: 1.6; }
+
+/* ── PÁGINA 3 ── */
+#p3 { background: linear-gradient(160deg, #0d3349 0%, #0a2535 100%); }
+
+.frases-cont { max-width: 460px; width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+.frase-bloque {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+  text-align: center; padding: 0 8px;
+}
+.frase-bloque.visible { opacity: 1; transform: translateY(0); }
+.frase-num { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--cian); margin-bottom: 10px; font-weight: 500; }
+.frase-grande { font-family: 'Playfair Display', serif; font-size: clamp(22px, 6vw, 34px); line-height: 1.2; color: #fff; margin-bottom: 14px; }
+.frase-grande em { color: var(--cian); font-style: italic; }
+.frase-body { font-size: clamp(14px, 3.5vw, 16px); color: #7fb3c8; line-height: 1.75; font-weight: 300; max-width: 380px; }
+.frase-body strong { color: #cce8f4; font-weight: 500; }
+.divisor { width: 36px; height: 1px; background: rgba(72,202,228,0.3); margin: 24px auto; }
+
+/* ── PÁGINA 4 ── */
+#p4 { background: radial-gradient(ellipse at 40% 35%, #0d5c52 0%, #062e28 55%, #020f0d 100%); }
+
+.cierre-inner { max-width: 420px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.cierre-icono { font-size: 46px; animation: latir 2.8s ease infinite; }
+@keyframes latir { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+.cierre-titulo { font-family: 'Playfair Display', serif; font-size: clamp(26px, 7vw, 42px); color: #fff; line-height: 1.2; }
+.cierre-titulo em { color: var(--cian); font-style: italic; }
+.cierre-linea { width: 44px; height: 1.5px; background: linear-gradient(90deg, transparent, var(--cian), transparent); }
+.cierre-texto { font-size: clamp(14px, 3.8vw, 17px); color: #7fcfbe; line-height: 1.85; font-weight: 300; max-width: 370px; }
+.cierre-texto strong { color: #cef0ea; font-weight: 500; }
+.cierre-ancla { font-family: 'Playfair Display', serif; font-size: clamp(14px, 3.8vw, 18px); color: var(--cian); font-style: italic; border-top: 1px solid rgba(72,202,228,0.2); padding-top: 18px; line-height: 1.6; max-width: 360px; }
+.cierre-firma { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<!-- P1 -->
+<div class="page active" id="p1">
+  <div class="p1-inner">
+    <div class="p1-badge">Atención Primaria de la Salud</div>
+    <h1 class="p1-titulo">Antes de que<br>te explique,<br><em>resuelve esto.</em></h1>
+    <p class="p1-sub">Un acertijo de 2 minutos.<br>La respuesta cambia todo lo que viene después.</p>
+    <div class="p1-linea"></div>
+  </div>
+  <button class="flecha-btn visible" id="btn-p1">
+    <span class="fb-label">comenzar</span>
+    <div class="fb-circle">↓</div>
+  </button>
+</div>
+
+<!-- P2 -->
+<div class="page" id="p2">
+  <div class="juego-header">
+    <h2>El granjero, el río y sus animales</h2>
+    <p>Lleva a todos al otro lado — sin que nadie se coma a nadie</p>
+    <div class="juego-timer" id="timer">⏱ 2:00</div>
+  </div>
+  <div class="reglas">
+    🐺 El lobo se come a la gallina &nbsp;·&nbsp; 🐔 La gallina se come el maíz<br>
+    <strong>El barco carga uno a la vez. Puedes cruzar con alguien o regresar solo.</strong>
+  </div>
+  <div class="juego-escena" id="escena">
+    <div class="orilla" id="orilla-izq">
+      <span class="orilla-label">Orilla A</span>
+      <div class="personaje-wrap" id="wrap-granjero">
+        <span class="personaje">🧑‍🌾</span>
+        <span class="personaje-nombre">Granjero</span>
+      </div>
+      <div class="personaje-wrap" id="wrap-lobo">
+        <span class="personaje">🐺</span>
+        <span class="personaje-nombre">Lobo</span>
+      </div>
+      <div class="personaje-wrap" id="wrap-gallina">
+        <span class="personaje">🐔</span>
+        <span class="personaje-nombre">Gallina</span>
+      </div>
+      <div class="personaje-wrap" id="wrap-maiz">
+        <span class="personaje">🌽</span>
+        <span class="personaje-nombre">Maíz</span>
+      </div>
+    </div>
+    <div class="rio" id="rio">
+      <span class="barco" id="barco" style="left:10px;">⛵</span>
+    </div>
+    <div class="orilla" id="orilla-der" style="background:#c8e8e0;justify-content:flex-end;">
+      <span class="orilla-label" style="left:auto;right:12px;">Orilla B</span>
+    </div>
+    <div class="instruccion" id="instruccion">Toca al animal que quieres llevar y luego súbelo al barco</div>
+    <div class="victoria" id="victoria">
+      <div style="font-size:46px">🎉</div>
+      <h3>¡Lo lograste!</h3>
+      <p>Encontraste el paso que casi nadie ve.<br>Ahora hay algo más importante que entender.</p>
+    </div>
+  </div>
+  <div class="barco-acciones" id="acciones">
+    <button class="btn-j" id="btn-subir" disabled>⬆️ Subir</button>
+    <button class="btn-j primario" id="btn-cruzar" disabled>⛵ Cruzar</button>
+    <button class="btn-j solo" id="btn-solo">↩️ Regresar solo</button>
+    <button class="btn-j" id="btn-bajar" disabled>⬇️ Bajar</button>
+  </div>
+  <button class="flecha-btn" id="flecha-p2">
+    <span class="fb-label">siguiente</span>
+    <div class="fb-circle" style="border-color:rgba(13,138,122,0.6);color:#0d8a7a;">↓</div>
+  </button>
+</div>
+
+<!-- P3 -->
+<div class="page" id="p3">
+  <div class="frases-cont">
+    <div class="frase-bloque" id="fb1">
+      <p class="frase-num">01</p>
+      <h2 class="frase-grande">La solución existe.<br>Pero el cerebro<br><em>no la ve.</em></h2>
+      <p class="frase-body">Casi nadie la encuentra a la primera porque asumimos que el movimiento es solo hacia adelante. Que regresar es perder.</p>
+    </div>
+    <div class="divisor"></div>
+    <div class="frase-bloque" id="fb2">
+      <p class="frase-num">02</p>
+      <h2 class="frase-grande">En medicina<br><em>pasa lo mismo.</em></h2>
+      <p class="frase-body">El sistema entrena a ir hacia adelante: <strong>síntoma → diagnóstico → tratamiento.</strong> Esa ruta tiene sentido. Pero <strong>llega tarde.</strong></p>
+    </div>
+    <div class="divisor"></div>
+    <div class="frase-bloque" id="fb3">
+      <p class="frase-num">03</p>
+      <h2 class="frase-grande">Un agente de cambio<br><em>regresa con la gallina.</em></h2>
+      <p class="frase-body">Se mueve a placer dentro del sistema. <strong>No espera que la tríada se complete para actuar.</strong></p>
+    </div>
+  </div>
+  <button class="flecha-btn" id="flecha-p3">
+    <span class="fb-label">continuar</span>
+    <div class="fb-circle">↓</div>
+  </button>
+</div>
+
+<!-- P4 -->
+<div class="page" id="p4">
+  <div class="cierre-inner">
+    <div class="cierre-icono">🩺</div>
+    <h2 class="cierre-titulo">No estás aquí<br>para <em>sobrevivir</em><br>la carrera.</h2>
+    <div class="cierre-linea"></div>
+    <p class="cierre-texto">
+      El médico que solo va hacia adelante trata enfermos.<br><br>
+      El que sabe regresar, detenerse y moverse en cualquier dirección —
+      ese <strong>evita que la gente enferme.</strong><br><br>
+      La APS no es el nivel más simple. Es el más humano.
+      Una conversación de cinco minutos puede valer más que diez consultas de especialidad.
+    </p>
+    <p class="cierre-ancla">
+      "La mayoría de las muertes prevenibles no ocurren por falta de tecnología.
+      Ocurren porque nadie llegó antes. Ese alguien puedes ser tú."
+    </p>
+    <p class="cierre-firma">Tríada Ecológica · APS · Dengue</p>
+  </div>
+</div>
+
+<!-- DOTS -->
+<div class="progress-dots">
+  <div class="pdot on" id="pd1"></div>
+  <div class="pdot"    id="pd2"></div>
+  <div class="pdot"    id="pd3"></div>
+  <div class="pdot"    id="pd4"></div>
+</div>
+
+<script>
+// ─── UTILIDAD TAP: funciona en iOS Safari, Android Chrome y desktop ───────────
+// Problema original: registrar click+touchend dispara la acción DOS veces en móvil.
+// Solución: usar SOLO touchend en dispositivos táctiles, SOLO click en desktop.
+// En iOS Safari los divs no reciben eventos de click a menos que tengan
+// cursor:pointer en CSS — ya se agregó. Aun así, touchend es más confiable.
+
+function tap(el, fn) {
+  if (!el) return;
+
+  // Flag para detectar si el toque se movió (scroll) — en ese caso no ejecutar
+  var startX, startY, didMove;
+
+  el.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    didMove = false;
+  }, { passive: true });
+
+  el.addEventListener('touchmove', function(e) {
+    if (Math.abs(e.touches[0].clientX - startX) > 8 ||
+        Math.abs(e.touches[0].clientY - startY) > 8) {
+      didMove = true;
+    }
+  }, { passive: true });
+
+  el.addEventListener('touchend', function(e) {
+    if (didMove) return;          // era scroll, no tap
+    e.preventDefault();           // bloquea el click fantasma de 300ms de iOS
+    fn();
+  }, { passive: false });
+
+  // click solo para dispositivos sin touch (desktop)
+  el.addEventListener('click', function(e) {
+    if ('ontouchstart' in window) return; // ya manejado por touchend
+    fn();
+  });
+}
+
+// ─── ESTADO DEL JUEGO ─────────────────────────────────────────────────────────
+var paginaActual = 1;
+
+var estado = {
+  izq: ['granjero','lobo','gallina','maiz'],
+  der: [],
+  barcoLado: 'izq',
+  enBarco: null,
+  seleccionado: null,
+  terminado: false,
+  iniciado: false,
+  cruzando: false
+};
+
+var timerInterval = null;
+var tiempoRestante = 120;
+
+// ─── NAVEGACIÓN ───────────────────────────────────────────────────────────────
+function irA(n) {
+  document.getElementById('p' + paginaActual).classList.remove('active');
+  document.getElementById('pd' + paginaActual).classList.remove('on');
+  paginaActual = n;
+  document.getElementById('p' + n).classList.add('active');
+  document.getElementById('pd' + n).classList.add('on');
+  if (n === 2) iniciarJuego();
+  if (n === 3) iniciarFrases();
+}
+
+// ─── JUEGO ────────────────────────────────────────────────────────────────────
+function iniciarJuego() {
+  if (estado.iniciado) return;
+  estado.iniciado = true;
+  tiempoRestante = 120;
+  timerInterval = setInterval(function() {
+    tiempoRestante--;
+    var m = Math.floor(tiempoRestante / 60);
+    var s = tiempoRestante % 60;
+    document.getElementById('timer').textContent = '⏱ ' + m + ':' + (s < 10 ? '0' : '') + s;
+    if (tiempoRestante <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('flecha-p2').classList.add('visible');
+    }
+  }, 1000);
+}
+
+function seleccionar(id) {
+  if (estado.terminado || estado.cruzando) return;
+  var enIzq = estado.izq.indexOf(id) >= 0;
+  var enDer = estado.der.indexOf(id) >= 0;
+  if (!enIzq && !enDer) return;
+  if ((enIzq ? 'izq' : 'der') !== estado.barcoLado) {
+    setMsg('El barco está en la otra orilla 🚣', false); return;
+  }
+  if (id === 'granjero') {
+    setMsg('El granjero siempre va — elige al animal que llevas', false); return;
+  }
+  if (estado.seleccionado) {
+    document.getElementById('wrap-' + estado.seleccionado).classList.remove('seleccionado');
+  }
+  estado.seleccionado = id;
+  document.getElementById('wrap-' + id).classList.add('seleccionado');
+  document.getElementById('btn-subir').disabled = false;
+  setMsg('¿Llevas al ' + nb(id) + '? Súbelo al barco ⬆️', false);
+}
+
+function subirAlBarco() {
+  if (!estado.seleccionado || estado.cruzando) return;
+  var id = estado.seleccionado;
+  estado.enBarco = id;
+  estado.seleccionado = null;
+  document.getElementById('wrap-' + id).classList.remove('seleccionado');
+  document.getElementById('wrap-' + id).classList.add('en-barco');
+  document.getElementById('btn-subir').disabled = true;
+  document.getElementById('btn-cruzar').disabled = false;
+  document.getElementById('btn-bajar').disabled = false;
+  setMsg('¡Cruza el río con el ' + nb(id) + '! ⛵', false);
+}
+
+function cruzar() {
+  if (document.getElementById('btn-cruzar').disabled || estado.cruzando) return;
+  estado.cruzando = true;
+  var destino = estado.barcoLado === 'izq' ? 'der' : 'izq';
+  var rioAncho = document.getElementById('rio').offsetWidth;
+  document.getElementById('barco').style.left =
+    (estado.barcoLado === 'izq') ? (rioAncho - 46) + 'px' : '10px';
+  estado.barcoLado = destino;
+  // bloquear botones durante animación
+  document.getElementById('btn-cruzar').disabled = true;
+  document.getElementById('btn-solo').disabled = true;
+
+  setTimeout(function() {
+    estado.cruzando = false;
+    document.getElementById('btn-solo').disabled = false;
+    if (estado.enBarco) {
+      var id = estado.enBarco;
+      var origen = destino === 'der' ? estado.izq : estado.der;
+      var dest   = destino === 'der' ? estado.der  : estado.izq;
+      origen.splice(origen.indexOf(id), 1);
+      dest.push(id);
+      var wrap = document.getElementById('wrap-' + id);
+      document.getElementById('orilla-' + destino).appendChild(wrap);
+      wrap.classList.remove('en-barco');
+      estado.enBarco = null;
+      document.getElementById('btn-bajar').disabled = true;
+    }
+    verificarPeligro();
+    verificarVictoria();
+  }, 700);
+}
+
+function regresarSolo() {
+  if (estado.terminado || estado.cruzando) return;
+  if (estado.enBarco) { setMsg('Baja al pasajero antes de regresar', false); return; }
+  estado.cruzando = true;
+  var destino = estado.barcoLado === 'izq' ? 'der' : 'izq';
+  var rioAncho = document.getElementById('rio').offsetWidth;
+  document.getElementById('barco').style.left =
+    (estado.barcoLado === 'izq') ? (rioAncho - 46) + 'px' : '10px';
+  estado.barcoLado = destino;
+  document.getElementById('btn-solo').disabled = true;
+
+  setTimeout(function() {
+    estado.cruzando = false;
+    document.getElementById('btn-solo').disabled = false;
+    verificarPeligro();
+    if (!estado.terminado) setMsg('Barco en orilla ' + (destino === 'izq' ? 'A' : 'B') + ' — elige a quién llevar', false);
+  }, 700);
+}
+
+function bajarDelBarco() {
+  if (!estado.enBarco || estado.cruzando) return;
+  document.getElementById('wrap-' + estado.enBarco).classList.remove('en-barco');
+  estado.enBarco = null;
+  document.getElementById('btn-cruzar').disabled = true;
+  document.getElementById('btn-bajar').disabled = true;
+  document.getElementById('btn-subir').disabled = true;
+  setMsg('Toca al animal que quieres llevar', false);
+}
+
+function verificarPeligro() {
+  var solos = estado.barcoLado === 'izq' ? estado.der : estado.izq;
+  if (solos.indexOf('lobo') >= 0 && solos.indexOf('gallina') >= 0) {
+    setMsg('🐺 ¡El lobo se comió a la gallina! Inténtalo de nuevo', true);
+    setTimeout(reiniciarJuego, 1900); return;
+  }
+  if (solos.indexOf('gallina') >= 0 && solos.indexOf('maiz') >= 0) {
+    setMsg('🐔 ¡La gallina se comió el maíz! Inténtalo de nuevo', true);
+    setTimeout(reiniciarJuego, 1900); return;
+  }
+  if (!estado.terminado) setMsg('Bien — elige a quién llevar ahora', false);
+}
+
+function verificarVictoria() {
+  if (['lobo','gallina','maiz'].every(function(id){ return estado.der.indexOf(id) >= 0; })) {
+    clearInterval(timerInterval);
+    estado.terminado = true;
+    document.getElementById('acciones').style.display = 'none';
+    document.getElementById('instruccion').style.display = 'none';
+    document.getElementById('victoria').classList.add('show');
+    document.getElementById('flecha-p2').classList.add('visible');
+  }
+}
+
+function reiniciarJuego() {
+  ['lobo','gallina','maiz','granjero'].forEach(function(id) {
+    var wrap = document.getElementById('wrap-' + id);
+    document.getElementById('orilla-izq').appendChild(wrap);
+    wrap.classList.remove('en-barco','seleccionado');
+  });
+  estado.izq = ['granjero','lobo','gallina','maiz'];
+  estado.der = []; estado.barcoLado = 'izq';
+  estado.enBarco = null; estado.seleccionado = null; estado.cruzando = false;
+  document.getElementById('barco').style.left = '10px';
+  ['btn-subir','btn-cruzar','btn-bajar'].forEach(function(id){ document.getElementById(id).disabled = true; });
+  document.getElementById('btn-solo').disabled = false;
+  setMsg('Toca al animal que quieres llevar y súbelo al barco', false);
+}
+
+function nb(id) { return {lobo:'lobo',gallina:'gallina',maiz:'maíz',granjero:'granjero'}[id]||id; }
+
+function setMsg(txt, esError) {
+  var el = document.getElementById('instruccion');
+  el.textContent = txt;
+  el.classList.toggle('error', esError);
+  if (esError) setTimeout(function(){ el.classList.remove('error'); }, 2200);
+}
+
+// ─── PÁGINA 3 ─────────────────────────────────────────────────────────────────
+function iniciarFrases() {
+  ['fb1','fb2','fb3'].forEach(function(id, i) {
+    setTimeout(function(){ document.getElementById(id).classList.add('visible'); }, i * 750 + 200);
+  });
+  setTimeout(function(){ document.getElementById('flecha-p3').classList.add('visible'); }, 2600);
+}
+
+// ─── REGISTRO DE EVENTOS (después de que el DOM esté listo) ───────────────────
+window.addEventListener('load', function() {
+  tap(document.getElementById('btn-p1'),    function(){ irA(2); });
+  tap(document.getElementById('flecha-p2'), function(){ irA(3); });
+  tap(document.getElementById('flecha-p3'), function(){ irA(4); });
+
+  ['granjero','lobo','gallina','maiz'].forEach(function(id) {
+    tap(document.getElementById('wrap-' + id), function(){ seleccionar(id); });
+  });
+
+  tap(document.getElementById('btn-subir'),  subirAlBarco);
+  tap(document.getElementById('btn-cruzar'), cruzar);
+  tap(document.getElementById('btn-solo'),   regresarSolo);
+  tap(document.getElementById('btn-bajar'),  bajarDelBarco);
+});
+</script>
+</body>
+</html>
